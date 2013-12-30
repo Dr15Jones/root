@@ -488,15 +488,16 @@ void TStorage::SetCustomNewDelete()
 void TStorage::AddToHeap(ULong_t begin, ULong_t end)
 {
    //add a range to the heap
-   if (begin < fgHeapBegin) fgHeapBegin = begin;
-   if (end   > fgHeapEnd)   fgHeapEnd   = end;
+   //if (begin < fgHeapBegin) fgHeapBegin = begin;
+   //if (end   > fgHeapEnd)   fgHeapEnd   = end;
 }
 
 //______________________________________________________________________________
 Bool_t TStorage::IsOnHeap(void *p)
 {
    //is object at p in the heap?
-   return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
+   //return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
+  return false;
 }
 
 //______________________________________________________________________________
