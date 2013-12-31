@@ -327,11 +327,11 @@ void *TStorage::ObjectAlloc(size_t sz)
    // the heap.
 
    // Needs to be protected by global mutex
-   R__LOCKGUARD(gGlobalMutex);
+   //R__LOCKGUARD(gGlobalMutex);
 
-   ULong_t space = (ULong_t) ::operator new(sz);
-   AddToHeap(space, space+sz);
-   return (void*) space;
+   void* space = ::operator new(sz);
+   //AddToHeap(space, space+sz);
+   return space;
 }
 
 //______________________________________________________________________________
