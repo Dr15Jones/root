@@ -33,6 +33,10 @@
 
 #include <stdlib.h>
 
+#if defined (R__LINUX) || defined(__APPLE__)
+#include <pthread.h>
+#endif
+
 #include "TROOT.h"
 #include "TObjectTable.h"
 #include "TError.h"
@@ -326,11 +330,15 @@ void *TStorage::ObjectAlloc(size_t sz)
    // TStorage::IsOnHeap() to find out if the just created object is on
    // the heap.
 
+#if !defined (R__LINUX) && !defined(__APPLE__)
    // Needs to be protected by global mutex
    R__LOCKGUARD(gGlobalMutex);
+#endif
 
    ULong_t space = (ULong_t) ::operator new(sz);
+#if !defined (R__LINUX) && !defined(__APPLE__)
    AddToHeap(space, space+sz);
+#endif
    return (void*) space;
 }
 
@@ -487,16 +495,37 @@ void TStorage::SetCustomNewDelete()
 //______________________________________________________________________________
 void TStorage::AddToHeap(ULong_t begin, ULong_t end)
 {
+#if !defined (R__LINUX) && !defined (__APPLE__)
    //add a range to the heap
    if (begin < fgHeapBegin) fgHeapBegin = begin;
    if (end   > fgHeapEnd)   fgHeapEnd   = end;
+#endif
 }
 
 //______________________________________________________________________________
 Bool_t TStorage::IsOnHeap(void *p)
 {
+#if defined (R__LINUX)
+  pthread_getattr_t thread_attr;
+  pthread_getattr_np(pthread_self(), &thread_attr);
+
+  void* stackAddr;
+  size_t stackSize;
+  pthread_attr_getstack(thread_attr,&stackAddr,&stackSize);
+
+  //stack grows downward
+  return p > stackAddr || p < ((char*)(stackAddr)-stackSize);
+#elif defined(__APPLE__)
+  pthread_t thread_id = pthread_self();
+  void* stackAddr = pthread_get_stackaddr_np(thread_id);
+  size_t stackSize = pthread_get_stacksize_np(thread_id);
+
+  //stack grows downward
+  return p > stackAddr || p < ((char*)(stackAddr)-stackSize);
+#else
    //is object at p in the heap?
    return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
+#endif
 }
 
 //______________________________________________________________________________
