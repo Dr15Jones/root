@@ -71,6 +71,7 @@ ReAllocFun_t  TStorage::fgReAllocHook;
 ReAllocCFun_t TStorage::fgReAllocCHook;
 Bool_t        TStorage::fgHasCustomNewDelete;
 
+static thread_local const void* sgLastAllocAddress = 0;
 
 ClassImp(TStorage)
 
@@ -327,10 +328,11 @@ void *TStorage::ObjectAlloc(size_t sz)
    // the heap.
 
    // Needs to be protected by global mutex
-   R__LOCKGUARD(gGlobalMutex);
+   //R__LOCKGUARD(gGlobalMutex);
 
    ULong_t space = (ULong_t) ::operator new(sz);
-   AddToHeap(space, space+sz);
+   sgLastAllocAddress = (void*) space;
+   //AddToHeap(space, space+sz);
    return (void*) space;
 }
 
@@ -496,7 +498,8 @@ void TStorage::AddToHeap(ULong_t begin, ULong_t end)
 Bool_t TStorage::IsOnHeap(void *p)
 {
    //is object at p in the heap?
-   return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
+   return p == sgLastAllocAddress;
+  // return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
 }
 
 //______________________________________________________________________________
