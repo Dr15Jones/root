@@ -81,13 +81,6 @@ public:
 };
 
 #ifndef WIN32
-inline void TStorage::AddToHeap(ULong_t begin, ULong_t end)
-   { if (begin < fgHeapBegin) fgHeapBegin = begin;
-     if (end   > fgHeapEnd)   fgHeapEnd   = end; }
-
-inline Bool_t TStorage::IsOnHeap(void *p)
-   { return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd; }
-
 inline size_t TStorage::GetMaxBlockSize() { return fgMaxBlockSize; }
 
 inline void TStorage::SetMaxBlockSize(size_t size) { fgMaxBlockSize = size; }

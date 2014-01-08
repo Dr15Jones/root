@@ -484,7 +484,6 @@ void TStorage::SetCustomNewDelete()
    fgHasCustomNewDelete = kTRUE;
 }
 
-#ifdef WIN32
 
 //______________________________________________________________________________
 void TStorage::AddToHeap(ULong_t begin, ULong_t end)
@@ -502,6 +501,7 @@ Bool_t TStorage::IsOnHeap(void *p)
   // return (ULong_t)p >= fgHeapBegin && (ULong_t)p < fgHeapEnd;
 }
 
+#ifdef WIN32
 //______________________________________________________________________________
 size_t TStorage::GetMaxBlockSize()
 {
