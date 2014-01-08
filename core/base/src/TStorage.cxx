@@ -490,7 +490,6 @@ void TStorage::SetCustomNewDelete()
    fgHasCustomNewDelete = kTRUE;
 }
 
-#ifdef WIN32
 
 //______________________________________________________________________________
 void TStorage::AddToHeap(ULong_t begin, ULong_t end)
@@ -506,13 +505,15 @@ void TStorage::AddToHeap(ULong_t begin, ULong_t end)
 Bool_t TStorage::IsOnHeap(void *p)
 {
 #if defined (R__LINUX)
-  pthread_getattr_t thread_attr;
-  pthread_getattr_np(pthread_self(), &thread_attr);
+  pthread_attr_t thread_attr;
+  static thread_local auto pthreadSelf( pthread_self());
+  pthread_getattr_np(pthreadSelf, &thread_attr);
 
   void* stackAddr;
   size_t stackSize;
-  pthread_attr_getstack(thread_attr,&stackAddr,&stackSize);
+  pthread_attr_getstack(&thread_attr,&stackAddr,&stackSize);
 
+  pthread_attr_destroy(&thread_attr);
   //stack grows downward
   return p > stackAddr || p < ((char*)(stackAddr)-stackSize);
 #elif defined(__APPLE__)
@@ -528,6 +529,7 @@ Bool_t TStorage::IsOnHeap(void *p)
 #endif
 }
 
+#ifdef WIN32
 //______________________________________________________________________________
 size_t TStorage::GetMaxBlockSize()
 {
