@@ -2525,6 +2525,7 @@ TClass *TClass::GetClass(const char *name, Bool_t load, Bool_t silent)
    // Returns 0 in case class is not found.
 
    if (!name || !strlen(name)) return 0;
+   R__LOCKGUARD2(gCINTMutex);
    if (!gROOT->GetListOfClasses())    return 0;
 
    TClass *cl = (TClass*)gROOT->GetListOfClasses()->FindObject(name);
